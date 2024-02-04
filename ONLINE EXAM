@@ -1,0 +1,136 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+class User {
+    private String username;
+    private String password;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+}
+
+class Question {
+    private String text;
+    private List<String> options;
+    private int correctOptionIndex;
+
+    public Question(String text, List<String> options, int correctOptionIndex) {
+        this.text = text;
+        this.options = options;
+        this.correctOptionIndex = correctOptionIndex;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public List<String> getOptions() {
+        return options;
+    }
+
+    public int getCorrectOptionIndex() {
+        return correctOptionIndex;
+    }
+}
+
+public class OnlineMCQExamSystem {
+    private static Map<String, User> users = new HashMap<>();
+    private static List<Question> questions = new ArrayList<>();
+
+    public static void main(String[] args) {
+        initializeUsers();
+        initializeQuestions();
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to the Online MCQ Exam System!");
+
+        // User authentication
+        User authenticatedUser = authenticateUser(scanner);
+        if (authenticatedUser == null) {
+            System.out.println("Authentication failed. Exiting.");
+            return;
+        }
+
+        // Start the exam
+        System.out.println("Welcome, " + authenticatedUser.getUsername() + "! Let's begin the exam.");
+
+        int score = conductMCQExam(scanner);
+
+        System.out.println("Your exam is complete. Your score is: " + score);
+
+        scanner.close();
+    }
+
+    private static void initializeUsers() {
+        users.put("user1", new User("user1", "password1"));
+        users.put("user2", new User("user2", "password2"));
+        // Add more users as needed
+    }
+
+    private static void initializeQuestions() {
+        List<String> options1 = List.of("A. Option A", "B. Option B", "C. Option C", "D. Option D");
+        questions.add(new Question("What is the capital of France?", options1, 0));
+
+        List<String> options2 = List.of("A. William Shakespeare", "B. Jane Austen", "C. Charles Dickens", "D. J.K. Rowling");
+        questions.add(new Question("Who wrote 'Pride and Prejudice'?", options2, 1));
+
+        // Add more questions as needed
+    }
+
+    private static User authenticateUser(Scanner scanner) {
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        User user = users.get(username);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        } else {
+            System.out.println("Invalid credentials.");
+            return null;
+        }
+    }
+
+    private static int conductMCQExam(Scanner scanner) {
+        int score = 0;
+
+        for (Question question : questions) {
+            System.out.println("\nQuestion: " + question.getText());
+            for (String option : question.getOptions()) {
+                System.out.println(option);
+            }
+
+            System.out.print("Your answer (Enter the option letter): ");
+            char userAnswer = scanner.nextLine().toUpperCase().charAt(0);
+
+            int userAnswerIndex = userAnswer - 'A';
+            if (userAnswerIndex >= 0 && userAnswerIndex < question.getOptions().size()) {
+                if (userAnswerIndex == question.getCorrectOptionIndex()) {
+                    System.out.println("Correct!");
+                    score++;
+                } else {
+                    System.out.println("Incorrect. The correct answer is: " + question.getOptions().get(question.getCorrectOptionIndex()));
+                }
+            } else {
+                System.out.println("Invalid option. Skipping question.");
+            }
+        }
+
+        return score;
+    }
+}
